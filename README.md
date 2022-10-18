@@ -1,7 +1,6 @@
 # okp4
-
 ```
-NODENAME=Mad
+NODENAME=<MONIKER HERE>
 ```
 ```
 OKP4_PORT=60
@@ -18,6 +17,18 @@ sudo apt update && sudo apt upgrade -y
 ```
 ```
 sudo apt install curl build-essential git wget jq make gcc tmux chrony -y
+```
+```
+if ! [ -x "$(command -v go)" ]; then
+  ver="1.18.2"
+  cd $HOME
+  wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
+  rm "go$ver.linux-amd64.tar.gz"
+  echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bash_profile
+  source ~/.bash_profile
+fi
 ```
 ```
 cd $HOME
@@ -89,7 +100,44 @@ sudo systemctl restart okp4d && sudo journalctl -u okp4d -f -o cat
 ```
 source $HOME/.bash_profile
 ```
-
-
-
-
+```
+okp4d status 2>&1 | jq .SyncInfo
+```
+```
+okp4d keys add $WALLET
+```
+```
+okp4d keys list
+```
+```
+OKP4_WALLET_ADDRESS=$(okp4d keys show $WALLET -a)
+OKP4_VALOPER_ADDRESS=$(okp4d keys show $WALLET --bech val -a)
+echo 'export OKP4_WALLET_ADDRESS='${OKP4_WALLET_ADDRESS} >> $HOME/.bash_profile
+echo 'export OKP4_VALOPER_ADDRESS='${OKP4_VALOPER_ADDRESS} >> $HOME/.bash_profile
+source $HOME/.bash_profile
+```
+```
+### faucet
+### https://faucet.okp4.network/
+```
+okp4d query bank balances $OKP4_WALLET_ADDRESS
+```
+```
+okp4d tx staking create-validator \
+  --amount 1000000uknow \
+  --from $WALLET \
+  --commission-max-change-rate "0.10" \
+  --commission-max-rate "0.40" \
+  --commission-rate "0.17" \
+  --min-self-delegation "1" \
+  --pubkey  $(okp4d tendermint show-validator) \
+  --moniker $NODENAME \
+  --identity=<your_keybase_id> \
+  --website="<your_website>" \
+  --details="<your_validator_description>" \
+  --chain-id $OKP4_CHAIN_ID
+```
+```
+sudo journalctl -u okp4d -f -o cat
+```
+ 
