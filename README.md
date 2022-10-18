@@ -139,4 +139,9 @@ okp4d tx staking create-validator \
 ```
 sudo journalctl -u okp4d -f -o cat
 ```
- 
+```
+okp4d tx distribution withdraw-rewards $OKP4_VALOPER_ADDRESS --from=$WALLET --commission --chain-id=$OKP4_CHAIN_ID
+```
+```
+okp4d tx staking delegate $OKP4_VALOPER_ADDRESS 1000000uknow --from=$WALLET --chain-id=$OKP4_CHAIN_ID
+```
